@@ -1,54 +1,105 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
+/*******************************************************************************************
+*
+*   raylib [models] example - loading gltf with animations
+*
+*   Example complexity rating: [★☆☆☆] 1/4
+*
+*   LIMITATIONS:
+*     - Only supports 1 armature per file, and skips loading it if there are multiple armatures
+*     - Only supports linear interpolation (default method in Blender when checked
+*       "Always Sample Animations" when exporting a GLTF file)
+*     - Only supports translation/rotation/scale animation channel.path,
+*       weights not considered (i.e. morph targets)
+*
+*   Example originally created with raylib 3.7, last time updated with raylib 4.2
+*
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2020-2025 Ramon Santamaria (@raysan5)
+*
+********************************************************************************************/
 
 #include "raylib.h"
 
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
-
-int main ()
+//------------------------------------------------------------------------------------
+// Program main entry point
+//------------------------------------------------------------------------------------
+int main(void)
 {
-	// Tell the window to use vsync and work on high DPI displays
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+    // Initialization
+    //--------------------------------------------------------------------------------------
+    const int screenWidth = 640;
+    const int screenHeight = 480;
 
-	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
+    InitWindow(screenWidth, screenHeight, "raylib [models] example - loading gltf animations");
 
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	SearchAndSetResourceDir("resources");
+    // Define the camera to look into our 3d world
+    Camera camera = { 0 };
+    camera.position = (Vector3){ 6.0f, 6.0f, 6.0f };    // Camera position
+    camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      // Camera looking at point
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    camera.fovy = 45.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
-	
-	// game loop
-	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
-	{
-		// drawing
-		BeginDrawing();
+    // Load gltf model
 
-		// Setup the back buffer for drawing (clear color and depth buffers)
-		ClearBackground(BLACK);
+    Model model = LoadModel("resources/ac_alien_green_additional_animations.gltf");
 
-		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
+    Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position
+    
+    // Load gltf model animations
+    int animsCount = 0;
+    unsigned int animIndex = 0;
+    unsigned int animCurrentFrame = 0;
+    ModelAnimation *modelAnimations = LoadModelAnimations("resources/ac_alien_green_additional_animations.gltf", &animsCount);
 
-		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
-		
-		// end the frame and get ready for the next one  (display frame, poll input, etc...)
-		EndDrawing();
-	}
+    SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
+    //--------------------------------------------------------------------------------------
 
-	// cleanup
-	// unload our texture so it can be cleaned up
-	UnloadTexture(wabbit);
+    // Main game loop
+    while (!WindowShouldClose())        // Detect window close button or ESC key
+    {
+        // Update
+        //--------------------------------------------------------------------------------
+        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
 
-	// destroy the window and cleanup the OpenGL context
-	CloseWindow();
-	return 0;
+        // Select current animation
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
+        else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
+
+        // Update model animation
+        ModelAnimation anim = modelAnimations[animIndex];
+        animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
+        UpdateModelAnimation(model, anim, animCurrentFrame);
+        //----------------------------------------------------------------------------------
+
+        // Draw
+        //----------------------------------------------------------------------------------
+        BeginDrawing();
+
+            ClearBackground(RAYWHITE);
+
+            BeginMode3D(camera);
+                DrawModel(model, position, 1.0f, WHITE);    // Draw animated model
+                DrawGrid(10, 1.0f);
+            EndMode3D();
+
+            DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
+//            DrawText(TextFormat("Animation: %s", anim.name), 10, GetScreenHeight() - 20, 10, DARKGRAY);
+
+//						DrawText(TextFormat("--- %s", camera.position), 10, GetScreenHeight() - 20, 10, BLUE);
+
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+    UnloadModel(model);         // Unload model and meshes/material
+
+    CloseWindow();              // Close window and OpenGL context
+    //--------------------------------------------------------------------------------------
+
+    return 0;
 }
