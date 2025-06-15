@@ -45,9 +45,9 @@ int main(void)
     // Load gltf model
 
     Model model = LoadModel("resources/ac_alien_green_additional_animations.gltf");
-
     Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position
-    
+   
+		Vector3 scenePosition = { 0.0f, -1.0f, 1.0f };	
     // Load gltf model animations
     int animsCount = 0;
     unsigned int animIndex = 0;
@@ -55,14 +55,22 @@ int main(void)
     ModelAnimation *modelAnimations = LoadModelAnimations("resources/ac_alien_green_additional_animations.gltf", &animsCount);
 
     SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------
+
+
+		Model x = LoadModel("resources/scene/pedestal_in_heaven_scene.gltf");
+		int _animsCount = 0;
+    unsigned int _animIndex = 0;
+    unsigned int _animCurrentFrame = 0;
+    ModelAnimation *_modelAnimations = LoadModelAnimations("resources/scene/pedestal_in_heaven_scene.gltf", &_animsCount);
+
 
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
         // Update
         //--------------------------------------------------------------------------------
-        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+        UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 
         // Select current animation
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
@@ -72,23 +80,20 @@ int main(void)
         ModelAnimation anim = modelAnimations[animIndex];
         animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
         UpdateModelAnimation(model, anim, animCurrentFrame);
-        //----------------------------------------------------------------------------------
 
-        // Draw
-        //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+						ClearBackground(RAYWHITE);
+						
 
             BeginMode3D(camera);
-                DrawModel(model, position, 1.0f, WHITE);    // Draw animated model
-                DrawGrid(10, 1.0f);
+                DrawModel(model, position, 0.3f, WHITE);    
+								DrawModel(x, scenePosition, 1.0f, WHITE);
             EndMode3D();
 
             DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
-//            DrawText(TextFormat("Animation: %s", anim.name), 10, GetScreenHeight() - 20, 10, DARKGRAY);
+            DrawText(TextFormat("Animation: %s", anim.name), 10, GetScreenHeight() - 20, 10, DARKGRAY);
 
-//						DrawText(TextFormat("--- %s", camera.position), 10, GetScreenHeight() - 20, 10, BLUE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
