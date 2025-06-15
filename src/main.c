@@ -70,7 +70,7 @@ int main(void)
     {
         // Update
         //--------------------------------------------------------------------------------
-        UpdateCamera(&camera, CAMERA_THIRD_PERSON);
+        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
 
         // Select current animation
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
@@ -83,7 +83,7 @@ int main(void)
 
         BeginDrawing();
 
-						ClearBackground(RAYWHITE);
+						ClearBackground(SKYBLUE);
 						
 
             BeginMode3D(camera);
