@@ -45,14 +45,17 @@ int main(void)
     // Load gltf model
 
     Model model = LoadModel("resources/ac_alien_green_additional_animations.gltf");
-    Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position
-   
+    Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position		
+
 		Vector3 scenePosition = { 0.0f, -1.0f, 1.0f };	
     // Load gltf model animations
     int animsCount = 0;
     unsigned int animIndex = 0;
     unsigned int animCurrentFrame = 0;
     ModelAnimation *modelAnimations = LoadModelAnimations("resources/ac_alien_green_additional_animations.gltf", &animsCount);
+
+		Texture2D charmanderTexture = LoadTexture("resources/charmander-ok.png");
+		Texture2D tex = LoadTexture("resources/pink.png");
 
     SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
     //-------------------------------------------------------------------------------------
@@ -64,18 +67,16 @@ int main(void)
     unsigned int _animCurrentFrame = 0;
     ModelAnimation *_modelAnimations = LoadModelAnimations("resources/scene/pedestal_in_heaven_scene.gltf", &_animsCount);
 
-
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
         // Update
         //--------------------------------------------------------------------------------
-        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+//        UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 
         // Select current animation
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
         else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
-
         // Update model animation
         ModelAnimation anim = modelAnimations[animIndex];
         animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
@@ -86,13 +87,17 @@ int main(void)
 						ClearBackground(SKYBLUE);
 						
 
+
             BeginMode3D(camera);
                 DrawModel(model, position, 0.3f, WHITE);    
 								DrawModel(x, scenePosition, 1.0f, WHITE);
+
+								if (IsKeyDown(KEY_ONE)) DrawBillboard(camera, charmanderTexture, (Vector3){0.0f, 2.0f, 3.0f}, 3.0f, WHITE);
             EndMode3D();
 
             DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
             DrawText(TextFormat("Animation: %s", anim.name), 10, GetScreenHeight() - 20, 10, DARKGRAY);
+					
 
 
         EndDrawing();
