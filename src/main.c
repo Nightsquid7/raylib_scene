@@ -67,6 +67,8 @@ int main(void)
     unsigned int _animCurrentFrame = 0;
     ModelAnimation *_modelAnimations = LoadModelAnimations("resources/scene/pedestal_in_heaven_scene.gltf", &_animsCount);
 
+		TraceLog(LOG_INFO, TextFormat("_animsCount: %i", _animsCount));
+
     // Main game loop
     while (!WindowShouldClose())        // Detect window close button or ESC key
     {
@@ -81,6 +83,11 @@ int main(void)
         ModelAnimation anim = modelAnimations[animIndex];
         animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
         UpdateModelAnimation(model, anim, animCurrentFrame);
+
+				ModelAnimation _anim = _modelAnimations[_animIndex];
+        _animCurrentFrame = (_animCurrentFrame + 1)%_anim.frameCount;
+        UpdateModelAnimation(x, _anim, _animCurrentFrame);
+
 
         BeginDrawing();
 
