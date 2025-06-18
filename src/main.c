@@ -85,8 +85,8 @@ int main(void)
 //        UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 
         // Select current animation
-//        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
-//        else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
+        else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
         // Update model animation
         ModelAnimation anim = modelAnimations[animIndex];
         animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
@@ -133,12 +133,14 @@ int main(void)
 
             DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
             DrawText(TextFormat("Animation: %s", anim.name), 10, GetScreenHeight() - 20, 10, DARKGRAY);
-//					GuiUnlock();
-//					GuiSetState(STATE_NORMAL);
-//						GuiGroupBox((Rectangle){ 10, 400, 165, 400 }, "STANDARD");
-//            GuiSlider((Rectangle){ 35, 400, 100, 16 }, TextFormat("%0.2f", cameraX), NULL, &cameraX, -20.0f, 20.0f);
-//            GuiSlider((Rectangle){ 96, 48, 200, 16 }, TextFormat("%0.2f", cameraY), NULL, &cameraY, -20.0f, 20.0f);
-//            GuiSlider((Rectangle){ 96, 48, 200, 16 }, TextFormat("%0.2f", cameraZ), NULL, &cameraZ, -20.0f, 20.0f);
+						DrawText(TextFormat("camera x %.2f", camera.position.x), 10, GetScreenHeight() - 40, 10, DARKGRAY);
+						DrawText(TextFormat("y %.2f", camera.position.y), 100, GetScreenHeight() - 40, 10, DARKGRAY);
+						DrawText(TextFormat("z %.2f", camera.position.z), 150, GetScreenHeight() - 40, 10, DARKGRAY);
+
+						DrawText(TextFormat("transl x %.2f", camera.target.x), 10, GetScreenHeight() - 50, 10, DARKGRAY);
+						DrawText(TextFormat("y %.2f", camera.target.y), 100, GetScreenHeight() - 50, 10, DARKGRAY);
+						DrawText(TextFormat("z %.2f", camera.target.z), 150, GetScreenHeight() - 50, 10, DARKGRAY);
+  
 
   
         EndDrawing();
