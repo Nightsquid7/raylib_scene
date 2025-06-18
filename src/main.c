@@ -33,9 +33,9 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 640;
+    const int screenWidth = 850;
     const int screenHeight = 480;
-//		SetConfigFlags(FLAG_WINDOW_UNDECORATED);
+		SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     InitWindow(screenWidth, screenHeight, "Dill's World");
 
     // Define the camera to look into our 3d world
@@ -52,7 +52,7 @@ int main(void)
     // Load gltf model
 
     Model model = LoadModel("resources/ac_alien_green_additional_animations.gltf");
-    Vector3 position = { 0.0f, 0.0f, 0.0f }; // Set model position		
+    Vector3 position = { 0.0f, 0.0f, -1.0f }; // Set model position		
 
 		Vector3 scenePosition = { 0.0f, -1.0f, 1.0f };	
     // Load gltf model animations
@@ -123,9 +123,12 @@ int main(void)
 								if (IsKeyDown(KEY_O)) camera.position.z += 0.1;
 
 								if (IsKeyDown(KEY_A)) camera.target.x -= 0.1;
-								if (IsKeyDown(KEY_S)) camera.target.x += 0.1;
+								if (IsKeyDown(KEY_S)) camera.target.y -= 0.1;
 								if (IsKeyDown(KEY_D)) camera.target.y += 0.1;
-								if (IsKeyDown(KEY_F)) camera.target.y -= 0.1;
+								if (IsKeyDown(KEY_F)) camera.target.x += 0.1;
+	
+								if (IsKeyDown(KEY_W)) camera.target.z -= 0.1;
+								if (IsKeyDown(KEY_F)) camera.target.z += 0.1;
 								
 
             DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
