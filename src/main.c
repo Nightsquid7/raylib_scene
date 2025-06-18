@@ -22,6 +22,10 @@
 
 #include "raylib.h"
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -31,12 +35,15 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int screenWidth = 640;
     const int screenHeight = 480;
-
-    InitWindow(screenWidth, screenHeight, "raylib [models] example - loading gltf animations");
+//		SetConfigFlags(FLAG_WINDOW_UNDECORATED);
+    InitWindow(screenWidth, screenHeight, "Dill's World");
 
     // Define the camera to look into our 3d world
+		float cameraX = 4.0f;
+		float cameraY = 4.0f;
+		float cameraZ = 14.0f;
     Camera camera = { 0 };
-    camera.position = (Vector3){ 6.0f, 6.0f, 20.0f };    // Camera position
+    camera.position = (Vector3){ 4.0f, 4.0f, 14.0f };    // Camera position
     camera.target = (Vector3){ 6.0f, 2.0f, -17.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                // Camera field-of-view Y
@@ -77,8 +84,8 @@ int main(void)
 //        UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 
         // Select current animation
-        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
+//        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
+//        else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
         // Update model animation
         ModelAnimation anim = modelAnimations[animIndex];
         animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
@@ -93,20 +100,37 @@ int main(void)
 
 						ClearBackground(SKYBLUE);
 						
-
-
-            BeginMode3D(camera);
+          BeginMode3D(camera);
                 DrawModel(model, position, 0.3f, WHITE);    
 								DrawModel(x, scenePosition, 1.0f, WHITE);
 
 								if (IsKeyDown(KEY_ONE)) DrawBillboard(camera, charmanderTexture, (Vector3){0.0f, 2.0f, 3.0f}, 3.0f, WHITE);
             EndMode3D();
 
+								if (IsKeyDown(KEY_LEFT)) camera.position.x -= 0.1;
+								if (IsKeyDown(KEY_RIGHT)) camera.position.x += 0.1;
+								if (IsKeyDown(KEY_UP)) camera.position.y += 0.1;
+								if (IsKeyDown(KEY_DOWN)) camera.position.y -= 0.1;
+								
+								if (IsKeyDown(KEY_K)) camera.position.z -= 0.1;
+								if (IsKeyDown(KEY_L)) camera.position.z += 0.1;
+
+								if (IsKeyDown(KEY_A)) camera.target.x -= 0.1;
+								if (IsKeyDown(KEY_S)) camera.target.x += 0.1;
+								if (IsKeyDown(KEY_D)) camera.target.y += 0.1;
+								if (IsKeyDown(KEY_F)) camera.target.y -= 0.1;
+								
+
             DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
             DrawText(TextFormat("Animation: %s", anim.name), 10, GetScreenHeight() - 20, 10, DARKGRAY);
-					
+//					GuiUnlock();
+//					GuiSetState(STATE_NORMAL);
+//						GuiGroupBox((Rectangle){ 10, 400, 165, 400 }, "STANDARD");
+//            GuiSlider((Rectangle){ 35, 400, 100, 16 }, TextFormat("%0.2f", cameraX), NULL, &cameraX, -20.0f, 20.0f);
+//            GuiSlider((Rectangle){ 96, 48, 200, 16 }, TextFormat("%0.2f", cameraY), NULL, &cameraY, -20.0f, 20.0f);
+//            GuiSlider((Rectangle){ 96, 48, 200, 16 }, TextFormat("%0.2f", cameraZ), NULL, &cameraZ, -20.0f, 20.0f);
 
-
+  
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
