@@ -61,6 +61,7 @@ int main(void)
     unsigned int animCurrentFrame = 0;
     ModelAnimation *modelAnimations = LoadModelAnimations("resources/ac_alien_green_additional_animations.gltf", &animsCount);
 
+		Vector3 billboardPosition = { 0.0f, 0.0f, 0.0f };
 		Texture2D charmanderTexture = LoadTexture("resources/charmander-ok.png");
 		Texture2D tex = LoadTexture("resources/pink.png");
 
@@ -104,16 +105,22 @@ int main(void)
                 DrawModel(model, position, 0.3f, WHITE);    
 								DrawModel(x, scenePosition, 1.0f, WHITE);
 
-								if (IsKeyDown(KEY_ONE)) DrawBillboard(camera, charmanderTexture, (Vector3){0.0f, 2.0f, 3.0f}, 3.0f, WHITE);
+								if (IsKeyDown(KEY_ONE)) {
+									billboardPosition = position;
+									billboardPosition.x += 2;
+									billboardPosition.y -= 1;
+
+									DrawBillboard(camera, charmanderTexture, billboardPosition, 3.0f, WHITE);
+								}
             EndMode3D();
 
-								if (IsKeyDown(KEY_LEFT)) camera.position.x -= 0.1;
-								if (IsKeyDown(KEY_RIGHT)) camera.position.x += 0.1;
-								if (IsKeyDown(KEY_UP)) camera.position.y += 0.1;
-								if (IsKeyDown(KEY_DOWN)) camera.position.y -= 0.1;
+								if (IsKeyDown(KEY_J)) camera.position.x -= 0.1;
+								if (IsKeyDown(KEY_SEMICOLON)) camera.position.x += 0.1;
+								if (IsKeyDown(KEY_L)) camera.position.y += 0.1;
+								if (IsKeyDown(KEY_K)) camera.position.y -= 0.1;
 								
-								if (IsKeyDown(KEY_K)) camera.position.z -= 0.1;
-								if (IsKeyDown(KEY_L)) camera.position.z += 0.1;
+								if (IsKeyDown(KEY_I)) camera.position.z -= 0.1;
+								if (IsKeyDown(KEY_O)) camera.position.z += 0.1;
 
 								if (IsKeyDown(KEY_A)) camera.target.x -= 0.1;
 								if (IsKeyDown(KEY_S)) camera.target.x += 0.1;
