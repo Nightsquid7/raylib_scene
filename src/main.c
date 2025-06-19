@@ -43,8 +43,8 @@ int main(void)
 		float cameraY = 4.0f;
 		float cameraZ = 14.0f;
     Camera camera = { 0 };
-    camera.position = (Vector3){ 4.0f, 4.0f, 14.0f };    // Camera position
-    camera.target = (Vector3){ 6.0f, 2.0f, -17.0f };      // Camera looking at point
+    camera.position = (Vector3){ -7.0f, 2.1f, 10.2f };    // Camera position
+    camera.target = (Vector3){ 5.9f, 4.0f, -1.2f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
