@@ -1,44 +1,15 @@
-/*******************************************************************************************
-*
-*   raylib [models] example - loading gltf with animations
-*
-*   Example complexity rating: [★☆☆☆] 1/4
-*
-*   LIMITATIONS:
-*     - Only supports 1 armature per file, and skips loading it if there are multiple armatures
-*     - Only supports linear interpolation (default method in Blender when checked
-*       "Always Sample Animations" when exporting a GLTF file)
-*     - Only supports translation/rotation/scale animation channel.path,
-*       weights not considered (i.e. morph targets)
-*
-*   Example originally created with raylib 3.7, last time updated with raylib 4.2
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2020-2025 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
-
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
     const int screenWidth = 850;
     const int screenHeight = 480;
 		SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     InitWindow(screenWidth, screenHeight, "Dill's World");
 
-    // Define the camera to look into our 3d world
 		float cameraX = 4.0f;
 		float cameraY = 4.0f;
 		float cameraZ = 14.0f;
@@ -48,8 +19,6 @@ int main(void)
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
-
-    // Load gltf model
 
     Model model = LoadModel("resources/ac_alien_green_additional_animations.gltf");
     Vector3 position = { 0.0f, 0.0f, -1.0f }; // Set model position		
@@ -65,8 +34,7 @@ int main(void)
 		Texture2D charmanderTexture = LoadTexture("resources/charmander-ok.png");
 		Texture2D tex = LoadTexture("resources/pink.png");
 
-    SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
-    //-------------------------------------------------------------------------------------
+    SetTargetFPS(60);
 
 
 		Model x = LoadModel("resources/scene/pedestal_in_heaven_scene.gltf");
@@ -77,18 +45,14 @@ int main(void)
 
 		TraceLog(LOG_INFO, TextFormat("_animsCount: %i", _animsCount));
 
-    // Main game loop
-    while (!WindowShouldClose())        // Detect window close button or ESC key
+    while (!WindowShouldClose())        
     {
-        // Update
-        //--------------------------------------------------------------------------------
-//        UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 
-        // Select current animation
+
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
         else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
-        // Update model animation
-        ModelAnimation anim = modelAnimations[animIndex];
+        
+				ModelAnimation anim = modelAnimations[animIndex];
         animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
         UpdateModelAnimation(model, anim, animCurrentFrame);
 
@@ -144,15 +108,11 @@ int main(void)
 
   
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    UnloadModel(model);         // Unload model and meshes/material
+    UnloadModel(model);        
 
-    CloseWindow();              // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    CloseWindow();              
 
     return 0;
 }
