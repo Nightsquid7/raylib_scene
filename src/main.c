@@ -3,11 +3,11 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
-Vector3 difference(Vector3 from, Vector3 to, int seconds, int framerate) {
-	float overFrames = (float)seconds * framerate;
-	float x = (to.x - from.x) / overFrames;	
-	float y = (to.y - from.y) / overFrames;	
-	float z = (to.z - from.z) / overFrames;	
+Vector3 difference(Vector3 from, Vector3 to, float seconds, int framerate) {
+	float duration = seconds * (float)framerate;
+	float x = (to.x - from.x) / duration;	
+	float y = (to.y - from.y) / duration;	
+	float z = (to.z - from.z) / duration;	
 
 	return (Vector3){ x, y, z }; 
 }
@@ -24,13 +24,14 @@ int main(void)
 		Vector3 cameraTarget_1 = (Vector3){ 5.9f, 4.0f, -1.2f };
 
 		Vector3 cameraPoint_2 = (Vector3){ 5.2f, 6.0f, 11.5f };
-		Vector3 cameraTarget_2 = (Vector3){ 5.9f, 4.0f, -1.2f };
+		Vector3 cameraTarget_2 = (Vector3){ 5.7f, 3.21f, -2.5f };
 
 		// function that takes 2 vectors - from , to 
 		// calculate take the difference, 
 		// then divide each by the framecount (seconds * framerate)
 		// then when the animation is active, just add each to each respective x, y, z
-		Vector3 diff = difference(cameraPoint_1, cameraPoint_2, 2, 60);
+		Vector3 diff = difference(cameraPoint_1, cameraPoint_2, 5, 60);
+		Vector3 diffTarget = difference(cameraTarget_1, cameraTarget_2, 5, 60);
 
 		int duration = 300;	
 		int cameraAnimationCurrentFrame = 0;
@@ -129,6 +130,9 @@ int main(void)
 									camera.position.x += diff.x;
 									camera.position.y += diff.y;								
 									camera.position.z += diff.z;								
+									camera.target.x += diffTarget.x;
+									camera.target.y += diffTarget.y;
+									camera.target.z += diffTarget.z;
 								}
 								
 
