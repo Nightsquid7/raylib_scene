@@ -4,20 +4,43 @@
 #include "raygui.h"
 
 Vector3 difference(Vector3 from, Vector3 to, float seconds, int framerate) {
+	if (from.x == to.x && from.y == from.y && from.z == from.z) {
+		TraceLog(LOG_INFO, TextFormat("identity"));
+		return (Vector3){ 0, 0, 0 };
+	}
 	float duration = seconds * (float)framerate;
 	float x = (to.x - from.x) / duration;	
 	float y = (to.y - from.y) / duration;	
 	float z = (to.z - from.z) / duration;	
-
+	TraceLog(LOG_INFO, TextFormat("diff x %.4f, y %.4f, z %.4f", x, y, z));
 	return (Vector3){ x, y, z }; 
 }
 
+typedef struct {
+	Vector3 position;
+	Vector3 target;
+} CameraPosition;
+
+typedef enum {
+	PLAY_THEN_STOP = 0,
+	REPEAT,
+	PLAY_THEN_REVERSE		
+} AnimationMode;
+
+typedef struct {
+	float duration;
+	int index;
+
+	AnimationMode mode;
+	CameraPosition positions[];
+} Animation;
 
 int main(void)
 {
+		int framerate = 60;
     const int screenWidth = 850;
     const int screenHeight = 480;
-		SetConfigFlags(FLAG_WINDOW_UNDECORATED);
+//		SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     InitWindow(screenWidth, screenHeight, "Dill's World");
 
 		Vector3 cameraPoint_1 = (Vector3){ -7.0f, 2.1f, 10.2f };
@@ -25,21 +48,41 @@ int main(void)
 
 		Vector3 cameraPoint_2 = (Vector3){ 5.2f, 6.0f, 11.5f };
 		Vector3 cameraTarget_2 = (Vector3){ 5.7f, 3.21f, -2.5f };
+		
+		Vector3 cameraPoint_3 = (Vector3){ 5.3f, 0.7f, 8.0f };
+		Vector3 cameraTarget_3 = (Vector3){ -5.7f, -3.21f, 2.5f };
 
-		// function that takes 2 vectors - from , to 
-		// calculate take the difference, 
-		// then divide each by the framecount (seconds * framerate)
-		// then when the animation is active, just add each to each respective x, y, z
-		Vector3 diff = difference(cameraPoint_1, cameraPoint_2, 5, 60);
-		Vector3 diffTarget = difference(cameraTarget_1, cameraTarget_2, 5, 60);
+
+		Vector3 diff = difference(cameraPoint_1, cameraPoint_2, 5, framerate);
+		Vector3 diffTarget = difference(cameraTarget_1, cameraTarget_2, 5, framerate);
 
 		int duration = 300;	
 		int cameraAnimationCurrentFrame = 0;
-		
-		float cameraX = 4.0f;
-		float cameraY = 4.0f;
-		float cameraZ = 14.0f;
-    Camera camera = { 0 };
+
+		CameraPosition pos1 = { .position = cameraPoint_1, .target = cameraTarget_1 };
+		CameraPosition pos2 = { .position = cameraPoint_2, .target = cameraTarget_2 };
+		CameraPosition pos3 = { .position = cameraPoint_3, .target = cameraTarget_3 };
+
+		Animation currentAnimation = { .duration = 5, .index = 0, .mode = PLAY_THEN_STOP,  };
+ 		currentAnimation.positions[0] = pos1; 
+ 		currentAnimation.positions[1] = pos2; 
+ 		currentAnimation.positions[2] = pos3; 
+
+		TraceLog(LOG_INFO, TextFormat("-- pos1 x: %.2f y %.2f z %.2f""", pos1.position.x, pos1.position.y, pos1.position.z));
+		TraceLog(LOG_INFO, TextFormat("-- pos1Tx: %.2f y %.2f z %.2f""", pos1.target.x, pos1.target.y, pos1.target.z));
+
+		TraceLog(LOG_INFO, TextFormat("-- pos2 x: %.2f y %.2f z %.2f""", pos2.position.x, pos2.position.y, pos2.position.z));
+		TraceLog(LOG_INFO, TextFormat("-- pos2Tx: %.2f y %.2f z %.2f""", pos2.target.x, pos2.target.y, pos2.target.z));
+
+		TraceLog(LOG_INFO, TextFormat("-- pos3 x: %.2f y %.2f z %.2f""", pos3.position.x, pos3.position.y, pos3.position.z));
+		TraceLog(LOG_INFO, TextFormat("-- pos3Tx: %.2f y %.2f z %.2f""", pos3.target.x, pos3.target.y, pos3.target.z));
+
+
+
+		int caCount = 3;
+   
+
+		Camera camera = { 0 };
     camera.position = cameraPoint_1; 
     camera.target = cameraTarget_1; 
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
@@ -60,7 +103,8 @@ int main(void)
 		Texture2D charmanderTexture = LoadTexture("resources/charmander-ok.png");
 		Texture2D tex = LoadTexture("resources/pink.png");
 
-    SetTargetFPS(60);
+
+    SetTargetFPS(framerate);
 
 
 		Model x = LoadModel("resources/scene/pedestal_in_heaven_scene.gltf");
@@ -102,7 +146,6 @@ int main(void)
 
 									DrawBillboard(camera, charmanderTexture, billboardPosition, 3.0f, WHITE);
 								}
-            EndMode3D();
 
 								if (IsKeyDown(KEY_J)) camera.position.x -= 0.1;
 								if (IsKeyDown(KEY_SEMICOLON)) camera.position.x += 0.1;
@@ -120,23 +163,50 @@ int main(void)
 								if (IsKeyDown(KEY_W)) camera.target.z -= 0.1;
 								if (IsKeyDown(KEY_F)) camera.target.z += 0.1;
 
-								if (IsKeyDown(KEY_Z)) {
-									if (cameraAnimationCurrentFrame == 0) {
-										camera.position = cameraPoint_1;
-										camera.target = cameraTarget_1;
-									}
-									if ( camera.position.x > cameraPoint_2.x ) camera.position = cameraPoint_1;
-									cameraAnimationCurrentFrame++;
-									camera.position.x += diff.x;
-									camera.position.y += diff.y;								
-									camera.position.z += diff.z;								
-									camera.target.x += diffTarget.x;
-									camera.target.y += diffTarget.y;
-									camera.target.z += diffTarget.z;
+							  // animation	
+								if (cameraAnimationCurrentFrame == 0) {
+
+									int fromIndex = currentAnimation.index % caCount;
+									int toIndex = (currentAnimation.index + 1) % caCount;
+
+									CameraPosition from = currentAnimation.positions[fromIndex];
+									CameraPosition to = currentAnimation.positions[toIndex];
+								
+									TraceLog(LOG_INFO, TextFormat("-- fromIndex %d,  toIndex %d", fromIndex, toIndex));	
+
+									TraceLog(LOG_INFO, TextFormat("-- from x: %.2f y %.2f z %.2f""", from.position.x, from.position.y, from.position.z));
+									TraceLog(LOG_INFO, TextFormat("-- fromTx: %.2f y %.2f z %.2f""", from.target.x, from.target.y, from.target.z));
+
+									TraceLog(LOG_INFO, TextFormat("-- to   x: %.2f y %.2f z %.2f""", to.position.x, to.position.y, to.position.z));
+									TraceLog(LOG_INFO, TextFormat("-- to  Tx: %.2f y %.2f z %.2f""", to.target.x, to.target.y, to.target.z));
+
+
+									diff = difference(from.position, to.position, currentAnimation.duration, framerate);
+									diffTarget = difference(from.target, to.target, currentAnimation.duration, framerate);
 								}
 								
+//								if ( camera.position.x > cameraPoint_2.x ) camera.position = cameraPoint_1;
+								
+								cameraAnimationCurrentFrame++;
+								camera.position.x += diff.x;
+								camera.position.y += diff.y;								
+								camera.position.z += diff.z;								
+								camera.target.x += diffTarget.x;
+								camera.target.y += diffTarget.y;
+								camera.target.z += diffTarget.z;
+								
+								if ((float)cameraAnimationCurrentFrame >= currentAnimation.duration * (float)framerate) {
 
-            DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
+									currentAnimation.index++;	
+									cameraAnimationCurrentFrame = 0;
+								}
+							
+
+
+            EndMode3D();
+
+
+						DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
             DrawText(TextFormat("Animation: %s", anim.name), 10, GetScreenHeight() - 20, 10, DARKGRAY);
 						DrawText(TextFormat("camera x %.2f", camera.position.x), 10, GetScreenHeight() - 40, 10, DARKGRAY);
 						DrawText(TextFormat("y %.2f", camera.position.y), 100, GetScreenHeight() - 40, 10, DARKGRAY);
