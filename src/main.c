@@ -63,21 +63,10 @@ int main(void)
 		CameraPosition pos2 = { .position = cameraPoint_2, .target = cameraTarget_2 };
 		CameraPosition pos3 = { .position = cameraPoint_3, .target = cameraTarget_3 };
 
-		Animation currentAnimation = { .duration = 5, .index = 0, .mode = PLAY_THEN_STOP,  };
- 		currentAnimation.positions[0] = pos1; 
- 		currentAnimation.positions[1] = pos2; 
- 		currentAnimation.positions[2] = pos3; 
-
-		TraceLog(LOG_INFO, TextFormat("-- pos1 x: %.2f y %.2f z %.2f""", pos1.position.x, pos1.position.y, pos1.position.z));
-		TraceLog(LOG_INFO, TextFormat("-- pos1Tx: %.2f y %.2f z %.2f""", pos1.target.x, pos1.target.y, pos1.target.z));
-
-		TraceLog(LOG_INFO, TextFormat("-- pos2 x: %.2f y %.2f z %.2f""", pos2.position.x, pos2.position.y, pos2.position.z));
-		TraceLog(LOG_INFO, TextFormat("-- pos2Tx: %.2f y %.2f z %.2f""", pos2.target.x, pos2.target.y, pos2.target.z));
-
-		TraceLog(LOG_INFO, TextFormat("-- pos3 x: %.2f y %.2f z %.2f""", pos3.position.x, pos3.position.y, pos3.position.z));
-		TraceLog(LOG_INFO, TextFormat("-- pos3Tx: %.2f y %.2f z %.2f""", pos3.target.x, pos3.target.y, pos3.target.z));
-
-
+		Animation currentAnimation = { .duration = 14, .index = 0, .mode = PLAY_THEN_STOP,  };
+ 		currentAnimation.positions[0] = (CameraPosition){ .position = cameraPoint_1, .target = cameraTarget_1 };
+ 		currentAnimation.positions[1] = (CameraPosition){ .position = cameraPoint_2, .target = cameraTarget_2 };
+ 		currentAnimation.positions[2] = (CameraPosition){ .position = cameraPoint_3, .target = cameraTarget_2 };
 
 		int caCount = 3;
    
