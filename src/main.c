@@ -46,7 +46,7 @@ int main(void)
 		Vector3 cameraPoint_1 = (Vector3){ -7.0f, 2.1f, 10.2f };
 		Vector3 cameraTarget_1 = (Vector3){ 5.9f, 4.0f, -1.2f };
 
-		Vector3 cameraPoint_2 = (Vector3){ 5.2f, 6.0f, 11.5f };
+		Vector3 cameraPoint_2 = (Vector3){ 7.4f, 3.4f, 10.0f };
 		Vector3 cameraTarget_2 = (Vector3){ 5.7f, 3.21f, -2.5f };
 		
 		Vector3 cameraPoint_3 = (Vector3){ 5.3f, 0.7f, 8.0f };
@@ -59,16 +59,13 @@ int main(void)
 		int duration = 300;	
 		int cameraAnimationCurrentFrame = 0;
 
-		CameraPosition pos1 = { .position = cameraPoint_1, .target = cameraTarget_1 };
-		CameraPosition pos2 = { .position = cameraPoint_2, .target = cameraTarget_2 };
-		CameraPosition pos3 = { .position = cameraPoint_3, .target = cameraTarget_3 };
 
 		Animation currentAnimation = { .duration = 14, .index = 0, .mode = PLAY_THEN_STOP,  };
  		currentAnimation.positions[0] = (CameraPosition){ .position = cameraPoint_1, .target = cameraTarget_1 };
- 		currentAnimation.positions[1] = (CameraPosition){ .position = cameraPoint_2, .target = cameraTarget_2 };
+ 		currentAnimation.positions[1] = (CameraPosition){ .position = cameraPoint_2, .target = cameraTarget_1 };
  		currentAnimation.positions[2] = (CameraPosition){ .position = cameraPoint_3, .target = cameraTarget_2 };
 
-		int caCount = 3;
+		int caCount = 2;
    
 
 		Camera camera = { 0 };
@@ -78,121 +75,115 @@ int main(void)
     camera.fovy = 45.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
-    Model model = LoadModel("resources/ac_alien_green_additional_animations.gltf");
+		char alienPath[] = "resources/alien/ac_alien_green_meeting_buddy.gltf";
+    Model model = LoadModel(alienPath);
     Vector3 position = { 0.0f, 0.0f, -1.0f }; // Set model position		
 
 		Vector3 scenePosition = { 0.0f, -1.0f, 1.0f };	
     // Load gltf model animations
     int animsCount = 0;
-    unsigned int animIndex = 0;
-    unsigned int animCurrentFrame = 0;
-    ModelAnimation *modelAnimations = LoadModelAnimations("resources/ac_alien_green_additional_animations.gltf", &animsCount);
+    unsigned int animIndex = 1;
+    unsigned int animCurrentFrame = 1;
+    ModelAnimation *modelAnimations = LoadModelAnimations(alienPath, &animsCount);
 
 		Vector3 billboardPosition = { 0.0f, 0.0f, 0.0f };
 		Texture2D charmanderTexture = LoadTexture("resources/charmander-ok.png");
-		Texture2D tex = LoadTexture("resources/pink.png");
-
 
     SetTargetFPS(framerate);
-
 
 		Model x = LoadModel("resources/scene/pedestal_in_heaven_scene.gltf");
 		int _animsCount = 0;
     unsigned int _animIndex = 0;
     unsigned int _animCurrentFrame = 0;
     ModelAnimation *_modelAnimations = LoadModelAnimations("resources/scene/pedestal_in_heaven_scene.gltf", &_animsCount);
-
-		TraceLog(LOG_INFO, TextFormat("_animsCount: %i", _animsCount));
+	
+		bool isAnimating = false;
+		
 
     while (!WindowShouldClose())        
     {
 
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
-        else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
-        
-				ModelAnimation anim = modelAnimations[animIndex];
-        animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
-        UpdateModelAnimation(model, anim, animCurrentFrame);
+			if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) animIndex = (animIndex + 1)%animsCount;
+			else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) animIndex = (animIndex + animsCount - 1)%animsCount;
+			
+			ModelAnimation anim = modelAnimations[animIndex];
+			animCurrentFrame = (animCurrentFrame + 1)%anim.frameCount;
+			UpdateModelAnimation(model, anim, animCurrentFrame);
 
-				ModelAnimation _anim = _modelAnimations[_animIndex];
-        _animCurrentFrame = (_animCurrentFrame + 1)%_anim.frameCount;
-        UpdateModelAnimation(x, _anim, _animCurrentFrame);
+			ModelAnimation _anim = _modelAnimations[_animIndex];
+			_animCurrentFrame = (_animCurrentFrame + 1)%_anim.frameCount;
+			UpdateModelAnimation(x, _anim, _animCurrentFrame);
 
 
-        BeginDrawing();
+			if (isAnimating) {
+			// animation	
+			if (cameraAnimationCurrentFrame == 0) {
 
-						ClearBackground(SKYBLUE);
-						
-          BeginMode3D(camera);
-                DrawModel(model, position, 0.3f, WHITE);    
-								DrawModel(x, scenePosition, 1.0f, WHITE);
+				int fromIndex = currentAnimation.index % caCount;
+				int toIndex = (currentAnimation.index + 1) % caCount;
 
-								if (IsKeyDown(KEY_ONE)) {
-									billboardPosition = position;
-									billboardPosition.x += 2;
-									billboardPosition.y -= 1;
+				CameraPosition from = currentAnimation.positions[fromIndex];
+				CameraPosition to = currentAnimation.positions[toIndex];
+			
+				TraceLog(LOG_INFO, TextFormat("-- fromIndex %d,  toIndex %d", fromIndex, toIndex));	
 
-									DrawBillboard(camera, charmanderTexture, billboardPosition, 3.0f, WHITE);
-								}
+				TraceLog(LOG_INFO, TextFormat("-- from x: %.2f y %.2f z %.2f""", from.position.x, from.position.y, from.position.z));
+				TraceLog(LOG_INFO, TextFormat("-- fromTx: %.2f y %.2f z %.2f""", from.target.x, from.target.y, from.target.z));
 
-								if (IsKeyDown(KEY_J)) camera.position.x -= 0.1;
-								if (IsKeyDown(KEY_SEMICOLON)) camera.position.x += 0.1;
-								if (IsKeyDown(KEY_L)) camera.position.y += 0.1;
-								if (IsKeyDown(KEY_K)) camera.position.y -= 0.1;
-								
-								if (IsKeyDown(KEY_I)) camera.position.z -= 0.1;
-								if (IsKeyDown(KEY_O)) camera.position.z += 0.1;
+				TraceLog(LOG_INFO, TextFormat("-- to   x: %.2f y %.2f z %.2f""", to.position.x, to.position.y, to.position.z));
+				TraceLog(LOG_INFO, TextFormat("-- to  Tx: %.2f y %.2f z %.2f""", to.target.x, to.target.y, to.target.z));
 
-								if (IsKeyDown(KEY_A)) camera.target.x -= 0.1;
-								if (IsKeyDown(KEY_S)) camera.target.y -= 0.1;
-								if (IsKeyDown(KEY_D)) camera.target.y += 0.1;
-								if (IsKeyDown(KEY_F)) camera.target.x += 0.1;
+
+				diff = difference(from.position, to.position, currentAnimation.duration, framerate);
+				diffTarget = difference(from.target, to.target, currentAnimation.duration, framerate);
+			}
+			
+			cameraAnimationCurrentFrame++;
+			camera.position.x += diff.x;
+			camera.position.y += diff.y;								
+			camera.position.z += diff.z;								
+			camera.target.x += diffTarget.x;
+			camera.target.y += diffTarget.y;
+			camera.target.z += diffTarget.z;
+			
+			if ((float)cameraAnimationCurrentFrame >= currentAnimation.duration * (float)framerate) {
+
+				currentAnimation.index++;	
+				cameraAnimationCurrentFrame = 0;
+			}
+		}
+
+			if (IsKeyPressed(KEY_ONE)) isAnimating = !isAnimating; 
 	
-								if (IsKeyDown(KEY_W)) camera.target.z -= 0.1;
-								if (IsKeyDown(KEY_F)) camera.target.z += 0.1;
 
-							  // animation	
-								if (cameraAnimationCurrentFrame == 0) {
+			if (IsKeyDown(KEY_J)) camera.position.x -= 0.1;
+			if (IsKeyDown(KEY_SEMICOLON)) camera.position.x += 0.1;
+			if (IsKeyDown(KEY_L)) camera.position.y += 0.1;
+			if (IsKeyDown(KEY_K)) camera.position.y -= 0.1;
+			
+			if (IsKeyDown(KEY_I)) camera.position.z -= 0.1;
+			if (IsKeyDown(KEY_O)) camera.position.z += 0.1;
 
-									int fromIndex = currentAnimation.index % caCount;
-									int toIndex = (currentAnimation.index + 1) % caCount;
+			if (IsKeyDown(KEY_A)) camera.target.x -= 0.1;
+			if (IsKeyDown(KEY_S)) camera.target.y -= 0.1;
+			if (IsKeyDown(KEY_D)) camera.target.y += 0.1;
+			if (IsKeyDown(KEY_F)) camera.target.x += 0.1;
 
-									CameraPosition from = currentAnimation.positions[fromIndex];
-									CameraPosition to = currentAnimation.positions[toIndex];
-								
-									TraceLog(LOG_INFO, TextFormat("-- fromIndex %d,  toIndex %d", fromIndex, toIndex));	
-
-									TraceLog(LOG_INFO, TextFormat("-- from x: %.2f y %.2f z %.2f""", from.position.x, from.position.y, from.position.z));
-									TraceLog(LOG_INFO, TextFormat("-- fromTx: %.2f y %.2f z %.2f""", from.target.x, from.target.y, from.target.z));
-
-									TraceLog(LOG_INFO, TextFormat("-- to   x: %.2f y %.2f z %.2f""", to.position.x, to.position.y, to.position.z));
-									TraceLog(LOG_INFO, TextFormat("-- to  Tx: %.2f y %.2f z %.2f""", to.target.x, to.target.y, to.target.z));
+			if (IsKeyDown(KEY_W)) camera.target.z -= 0.1;
+			if (IsKeyDown(KEY_F)) camera.target.z += 0.1;
 
 
-									diff = difference(from.position, to.position, currentAnimation.duration, framerate);
-									diffTarget = difference(from.target, to.target, currentAnimation.duration, framerate);
-								}
-								
-//								if ( camera.position.x > cameraPoint_2.x ) camera.position = cameraPoint_1;
-								
-								cameraAnimationCurrentFrame++;
-								camera.position.x += diff.x;
-								camera.position.y += diff.y;								
-								camera.position.z += diff.z;								
-								camera.target.x += diffTarget.x;
-								camera.target.y += diffTarget.y;
-								camera.target.z += diffTarget.z;
-								
-								if ((float)cameraAnimationCurrentFrame >= currentAnimation.duration * (float)framerate) {
+			BeginDrawing();
 
-									currentAnimation.index++;	
-									cameraAnimationCurrentFrame = 0;
-								}
-							
+				ClearBackground(SKYBLUE);
+				
+			BeginMode3D(camera);
+						DrawModel(model, position, 0.3f, WHITE);    
+						DrawModel(x, scenePosition, 1.0f, WHITE);
 
 
-            EndMode3D();
+				EndMode3D();
 
 
 						DrawText("Use the LEFT/RIGHT mouse buttons to switch animation", 10, 10, 20, GRAY);
